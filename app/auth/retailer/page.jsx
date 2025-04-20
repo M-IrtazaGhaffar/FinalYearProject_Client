@@ -43,7 +43,7 @@ function page() {
           Forgot Your Password?
         </Link>
         <Button className="w-full hover:bg-white hover:text-black shadow-2xl border-[1px]">
-          Login Retailer
+          <Link href={'/dashboard/retailer'}>Login Retailer</Link>
         </Button>
       </form>
     </main>

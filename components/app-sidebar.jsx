@@ -13,6 +13,7 @@ import {
 import { Button } from "./ui/button";
 import Logo2 from "@/assets/2.png";
 import Image from "next/image";
+import Link from "next/link";
 
 export function AppSidebar({ items }) {
   return (
@@ -40,7 +41,9 @@ export function AppSidebar({ items }) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Button>Logout</Button>
+        <Button>
+          <Link href={'/auth/retailer'}>Logout</Link>
+        </Button>
       </SidebarFooter>
     </Sidebar>
   );
