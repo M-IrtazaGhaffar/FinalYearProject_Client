@@ -1,81 +1,95 @@
+import { auth } from "@/auth";
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
-import { AppBarChart } from "@/components/charts/app-barchart";
-import React from "react";
+import AppMapBox from "@/components/app-mapbox";
+import { organizationApi } from "@/lib/axiosInstance";
+import axios from "axios";
 
-function page() {
-  const Data = {
-    name: "D Watson Meds",
-    email: "irtazaghaffar@gmail.com",
-    license: "7832983902342",
-    retailer: "M. Irtaza Ghaffar",
-    address: "CUST Islamabad",
-    phone: "+923331234567",
-  };
-  const chartData = [
-    { month: "January", desktop: 186 },
-    { month: "February", desktop: 305 },
-    { month: "March", desktop: 237 },
-    { month: "April", desktop: 73 },
-    { month: "May", desktop: 209 },
-    { month: "June", desktop: 214 },
-  ];
-  const totalInventory = 1430;
-  const totalProducts = 57;
-  const totalSales = 50640;
+async function Page() {
+  const session = await auth();
+  let organizationData = null;
+
+  try {
+    const response = await axios.post(
+      "https://advancedpos.duckdns.org/api/retailer/getbyid",
+      {
+        id: session?.user?.id,
+        token: session?.user?.token,
+      }
+    );
+    organizationData = response.data.data;
+    console.log(Object.keys(organizationData));
+  } catch (error) {
+    console.error("Error fetching organization data:", error);
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Failed to load organization data
+      </div>
+    );
+  }
+
+  if (!organizationData) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        No organization data found
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-2">
-      <h2 className="text-2xl font-bold">Dashboard Retailer</h2>
+      <h2 className="text-2xl font-bold">Dashboard Organization</h2>
       <AppBreadcrumb />
       <div className="py-10 space-y-3">
         <div className="flex items-center justify-between gap-10">
+          <span className="text-sm font-bold">ID</span>
+          <span>{organizationData.id}</span>
+        </div>
+        <hr />
+        <div className="flex items-center justify-between gap-10">
           <span className="text-sm font-bold">Name</span>
-          <span>{Data.name}</span>
+          <span>{organizationData.name}</span>
         </div>
         <hr />
         <div className="flex items-center justify-between gap-10">
           <span className="text-sm font-bold">Email</span>
-          <span>{Data.email}</span>
+          <span>{organizationData.email}</span>
         </div>
         <hr />
         <div className="flex items-center justify-between gap-10">
-          <span className="text-sm font-bold">Retailer</span>
-          <span>{Data.retailer}</span>
+          <span className="text-sm font-bold">Owner</span>
+          <span>{organizationData.owner}</span>
         </div>
         <hr />
         <div className="flex items-center justify-between gap-10">
           <span className="text-sm font-bold">License</span>
-          <span>{Data.license}</span>
+          <span>{organizationData.license}</span>
+        </div>
+        <hr />
+        <div className="flex items-center justify-between gap-10">
+          <span className="text-sm font-bold">National ID</span>
+          <span>{organizationData.national_id}</span>
         </div>
         <hr />
         <div className="flex items-center justify-between gap-10">
           <span className="text-sm font-bold">Phone</span>
-          <span>{Data.phone}</span>
+          <span>{organizationData.phone}</span>
         </div>
         <hr />
         <div className="flex items-center justify-between gap-10">
           <span className="text-sm font-bold">Address</span>
-          <span>{Data.address}</span>
+          <span>{organizationData.address}</span>
         </div>
-      </div>
-      <div className="flex justify-between gap-5">
-        <AppBarChart chartData={chartData} />
-        <div className="flex flex-col justify-between w-[35vw]">
-          <div className="shadow-xl p-9 rounded-xl flex flex-row justify-between items-center h-fit border-[1px] w-full">
-            <span className="font-bold">Total Inventory</span>
-            <span className="text-5xl">{totalInventory}</span>
-          </div>
-          <div className="shadow-xl p-9 rounded-xl flex flex-row justify-between items-center h-fit border-[1px] w-full">
-            <span className="font-bold">Total Products</span>
-            <span className="text-5xl">{totalProducts}</span>
-          </div>
-          <div className="shadow-xl p-9 rounded-xl flex flex-row justify-between items-center h-fit border-[1px] w-full">
-            <span className="font-bold">Total Sales</span>
-            <span className="text-5xl">{totalSales}</span>
-          </div>
+        <hr />
+        <div className="flex items-center justify-between gap-10">
+          <span className="text-sm font-bold">Country</span>
+          <span>{organizationData.country}</span>
+        </div>
+        <div className="flex items-center justify-between gap-10">
+          <AppMapBox latitude={organizationData.latitude} longitude={organizationData.longitude} />
         </div>
       </div>
     </div>
   );
 }
 
-export default page;
+export default Page;

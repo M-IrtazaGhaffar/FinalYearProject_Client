@@ -1,3 +1,4 @@
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { Raleway } from "next/font/google";
 
@@ -14,7 +15,11 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={`${raleway.className}`}>{children}</body>
+      <body className={`${raleway.className}`}>
+        <SessionProvider>
+        {children}
+        </SessionProvider>
+        </body>
     </html>
   );
 }

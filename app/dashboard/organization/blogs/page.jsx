@@ -32,7 +32,7 @@ export default async function Page() {
       <AppBreadcrumb />
       <div className="py-5 flex flex-col gap-5">
         {blogs.map((blog) => (
-          <Link href={`/dashboard/retailer/blogs/${blog.id}`} key={blog.id} className="space-y-2 border-2 p-3 rounded-xl shadow-xl">
+          <Link href={`/dashboard/organization/blogs/${blog.id}`} key={blog.id} className="space-y-2 border-2 p-3 rounded-xl shadow-xl">
             <h3 className="text-xl font-semibold">{blog.title}</h3>
             <p className="text-xs">by {blog.organization?.name}</p>
             <p className="text-sm text-gray-600">
