@@ -1,5 +1,5 @@
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
-import { organizationApi } from "@/lib/axiosInstance";
+import { organizationApi } from "@/app/axiosInstance";
 import axios from "axios";
 import Link from "next/link";
 

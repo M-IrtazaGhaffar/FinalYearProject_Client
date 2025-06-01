@@ -4,7 +4,8 @@ import axios from "axios";
 import { signOut, getSession } from "next-auth/react";
 
 const organizationApi = axios.create({
-  baseURL: "https://advancedpos.duckdns.org/api/organization",
+  baseURL: "https://advancedpos.duckdns.org/organization",
+  // baseURL: "http://localhost:8000/organization",
   headers: {
     "Content-Type": "application/json",
   },
@@ -34,7 +35,8 @@ organizationApi.interceptors.response.use(
 );
 
 const retailerApi = axios.create({
-  baseURL: "https://advancedpos.duckdns.org/api/retailer",
+  baseURL: "https://advancedpos.duckdns.org/retailer",
+  // baseURL: "http://localhost:8000/retailer",
   headers: {
     "Content-Type": "application/json",
   },

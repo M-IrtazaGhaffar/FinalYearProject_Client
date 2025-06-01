@@ -1,7 +1,7 @@
 import { auth } from "@/auth";
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
 import AppMapBox from "@/components/app-mapbox";
-import { organizationApi } from "@/lib/axiosInstance";
+import { organizationApi } from "@/app/axiosInstance";
 import axios from "axios";
 
 async function Page() {
