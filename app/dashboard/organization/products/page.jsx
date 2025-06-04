@@ -11,9 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import axios from "axios";
-
-// If you use shadcn/ui Dialog:
 import {
   Dialog,
   DialogContent,
@@ -23,92 +20,99 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { organizationApi } from "@/app/axiosInstance";
+import axios from "axios";
 
-function BlogsPage() {
-  const [blogs, setBlogs] = useState([]);
+function ProductsPage() {
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Modal state
   const [open, setOpen] = useState(false);
-  const [editBlog, setEditBlog] = useState(null);
+  const [editProduct, setEditProduct] = useState(null);
   const [editData, setEditData] = useState({
-    title: "",
+    name: "",
+    formula: "",
     description: "",
-    details: "",
+    detail: "",
+    consumption: "",
+    sideeffects: "",
+    other: "",
   });
 
   // Search state
   const [search, setSearch] = useState("");
 
-  // Fetch blogs for organization_id 1
-  const fetchBlogs = async () => {
+  // Fetch products for organization_id 1
+  const fetchProducts = async () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "https://advancedpos.duckdns.org/api/blog/getbyorganizationid",
+        "https://advancedpos.duckdns.org/api/product/getbyorganizationid",
         { organization_id: 1 }
       );
-      setBlogs(res.data.data || []);
+      setProducts(res.data.data || []);
     } catch (error) {
-      alert("Failed to fetch blogs");
+      alert("Failed to fetch products");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchBlogs();
+    fetchProducts();
   }, []);
 
-  // Open modal and set blog data
-  const handleEditClick = (blog) => {
-    setEditBlog(blog);
+  // Open modal and set product data
+  const handleEditClick = (product) => {
+    setEditProduct(product);
     setEditData({
-      title: blog.title,
-      description: blog.description,
-      details: blog.details,
+      name: product.name || "",
+      formula: product.formula || "",
+      description: product.description || "",
+      detail: product.detail || "",
+      consumption: product.consumption || "",
+      sideeffects: product.sideeffects || "",
+      other: product.other || "",
     });
     setOpen(true);
   };
 
   // Save changes
   const handleSave = async () => {
-    if (!editBlog) return;
+    if (!editProduct) return;
     try {
-      await organizationApi.post("/blog/update", {
-        id: editBlog.id,
-        title: editData.title,
-        description: editData.description,
-        details: editData.details,
+      await organizationApi.post("/product/update", {
+        id: editProduct.id,
+        ...editData,
       });
-      setBlogs((prev) =>
-        prev.map((b) => (b.id === editBlog.id ? { ...b, ...editData } : b))
+      setProducts((prev) =>
+        prev.map((p) => (p.id === editProduct.id ? { ...p, ...editData } : p))
       );
       setOpen(false);
-      setEditBlog(null);
-      alert("Blog updated successfully!");
+      setEditProduct(null);
+      alert("Product updated successfully!");
     } catch (error) {
-      alert("Failed to update blog");
+      alert("Failed to update product");
     }
   };
 
-  // Filter blogs by search
-  const filteredBlogs = blogs.filter((blog) =>
-    blog.title?.toLowerCase().includes(search.toLowerCase())
+  // Filter products by search
+  const filteredProducts = products.filter((product) =>
+    product.name?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="p-5">
       <div className="flex flex-col gap-4 mb-6 md:flex-row md:items-center md:justify-between">
-        <h1 className="text-2xl font-bold">Organization Blogs</h1>
+        <h1 className="text-2xl font-bold">Organization Products</h1>
         <div className="flex gap-2 items-center">
           <Input
-            placeholder="Search by title..."
+            placeholder="Search by name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full md:w-64"
           />
-          <Button onClick={fetchBlogs} variant="outline" disabled={loading}>
+          <Button onClick={fetchProducts} variant="outline" disabled={loading}>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -133,22 +137,20 @@ function BlogsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>ID</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>Description</TableHead>
+              <TableHead>Name</TableHead>
+              <TableHead>Formula</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredBlogs.map((blog) => (
-              <TableRow key={blog.id}>
-                <TableCell>{blog.id}</TableCell>
-                <TableCell>{blog.title}</TableCell>
-                <TableCell>
-                  <div className="line-clamp-2">{blog.description}</div>
-                </TableCell>
+            {filteredProducts.map((product) => (
+              <TableRow key={product.id}>
+                <TableCell>{product.id}</TableCell>
+                <TableCell>{product.name}</TableCell>
+                <TableCell>{product.formula}</TableCell>
                 <TableCell>
                   <div className="flex gap-2">
-                    <Button size="sm" onClick={() => handleEditClick(blog)}>
+                    <Button size="sm" onClick={() => handleEditClick(product)}>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -164,12 +166,15 @@ function BlogsPage() {
                         />
                       </svg>
                     </Button>
-                    <Button size="sm" asChild>
+                    <Button
+                      size="sm"
+                      asChild
+                    >
                       <a
-                        href={`https://final-year-project-web-app.vercel.app/blogs/${blog.id}`}
+                        href={`https://final-year-project-web-app.vercel.app/products/${product.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        title="View Blog"
+                        title="View Product"
                       >
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
@@ -188,10 +193,10 @@ function BlogsPage() {
                 </TableCell>
               </TableRow>
             ))}
-            {filteredBlogs.length === 0 && (
+            {filteredProducts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center">
-                  No blogs found.
+                  No products found.
                 </TableCell>
               </TableRow>
             )}
@@ -199,20 +204,30 @@ function BlogsPage() {
         </Table>
       )}
 
-      {/* Edit Blog Modal */}
+      {/* Edit Product Modal */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Blog</DialogTitle>
+            <DialogTitle>Edit Product</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-2">
+          <div className="space-y-4 py-2 max-h-[70vh] overflow-y-auto pr-2">
             <div>
-              <label className="block text-sm font-medium mb-1">Title</label>
+              <label className="block text-sm font-medium mb-1">Name</label>
               <Input
-                name="title"
-                value={editData.title}
+                name="name"
+                value={editData.name}
                 onChange={(e) =>
-                  setEditData({ ...editData, title: e.target.value })
+                  setEditData({ ...editData, name: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Formula</label>
+              <Input
+                name="formula"
+                value={editData.formula}
+                onChange={(e) =>
+                  setEditData({ ...editData, formula: e.target.value })
                 }
               />
             </div>
@@ -229,12 +244,46 @@ function BlogsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Details</label>
+              <label className="block text-sm font-medium mb-1">Detail</label>
               <Input
-                name="details"
-                value={editData.details}
+                name="detail"
+                value={editData.detail}
                 onChange={(e) =>
-                  setEditData({ ...editData, details: e.target.value })
+                  setEditData({ ...editData, detail: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Consumption
+              </label>
+              <Input
+                name="consumption"
+                value={editData.consumption}
+                onChange={(e) =>
+                  setEditData({ ...editData, consumption: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Side Effects
+              </label>
+              <Input
+                name="sideeffects"
+                value={editData.sideeffects}
+                onChange={(e) =>
+                  setEditData({ ...editData, sideeffects: e.target.value })
+                }
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Other</label>
+              <Input
+                name="other"
+                value={editData.other}
+                onChange={(e) =>
+                  setEditData({ ...editData, other: e.target.value })
                 }
               />
             </div>
@@ -253,4 +302,4 @@ function BlogsPage() {
   );
 }
 
-export default BlogsPage;
+export default ProductsPage;

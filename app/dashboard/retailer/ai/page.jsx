@@ -73,7 +73,7 @@ function Page() {
         </p>
       </div>
 
-      <ScrollArea className="flex-1 pr-4 mb-4">
+      <ScrollArea className="flex-1 pr-4 pb-10 mb-4">
         <div className="flex flex-col gap-3">
           {messages.map((msg, i) => (
             <span

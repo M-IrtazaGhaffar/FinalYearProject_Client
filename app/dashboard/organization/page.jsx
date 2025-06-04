@@ -17,7 +17,6 @@ async function Page() {
       }
     );
     organizationData = response.data.data;
-    console.log(Object.keys(organizationData));
   } catch (error) {
     console.error("Error fetching organization data:", error);
     return (

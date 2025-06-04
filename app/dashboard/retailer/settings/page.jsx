@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { organizationApi } from "@/app/axiosInstance";
+import { organizationApi, retailerApi } from "@/app/axiosInstance";
 import axios from "axios";
 import { getSession } from "next-auth/react"; // Add this import
 
@@ -30,10 +30,10 @@ function SettingsPage() {
     setLoading(true);
     try {
       const session = await getSession(); // Get session here
-      const orgId = session?.user?.id || ""; // fallback if needed
+      const retId = session?.user?.id || ""; // fallback if needed
       const res = await axios.post(
-        "https://advancedpos.duckdns.org/api/organization/getbyid",
-        { id: orgId }
+        "https://advancedpos.duckdns.org/api/retailer/getbyid",
+        { id: retId }
       );
       setSettings(res.data.data || {});
     } catch (error) {
@@ -52,7 +52,7 @@ function SettingsPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await organizationApi.post("/update", {
+      await retailerApi.post("/update", {
         id: settings.id,
         name: settings.name,
         owner: settings.owner,
@@ -75,7 +75,7 @@ function SettingsPage() {
 
   return (
     <div className="p-5">
-      <h1 className="text-2xl font-bold mb-6">Organization Settings</h1>
+      <h1 className="text-2xl font-bold mb-6">Retailer Settings</h1>
       {loading ? (
         <div>Loading...</div>
       ) : (
