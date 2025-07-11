@@ -1,65 +1,86 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { retailerApi } from "@/app/axiosInstance";
+import { useSession } from "next-auth/react";
+
+import { toast } from "sonner";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
-import React from "react";
 
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+export default function InventoryPage() {
+  const { data: session } = useSession();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-function page() {
-  const medicines = [
-    { id: "1", name: "Panadol 10mg", price: "$25.00", company: "GSK" },
-    { id: "2", name: "Aspirin 100mg", price: "$15.00", company: "Bayer" },
-    { id: "3", name: "Amoxicillin 500mg", price: "$30.00", company: "Pfizer" },
-    { id: "4", name: "Ibuprofen 200mg", price: "$10.00", company: "Advil" },
-    { id: "5", name: "Cetirizine 10mg", price: "$8.00", company: "Zyrtec" },
-    { id: "6", name: "Metformin 500mg", price: "$20.00", company: "Teva" },
-    { id: "7", name: "Paracetamol 500mg", price: "$12.00", company: "Tylenol" },
-    { id: "8", name: "Simvastatin 20mg", price: "$40.00", company: "Merck" },
-    { id: "9", name: "Lisinopril 10mg", price: "$22.00", company: "Aurobindo" },
-    {
-      id: "10",
-      name: "Omeprazole 20mg",
-      price: "$18.00",
-      company: "AstraZeneca",
-    },
-  ];
+  const fetchRetailerProducts = async () => {
+    setLoading(true);
+    try {
+      const response = await retailerApi.post("/product/all", {
+        retailer_id: parseInt(session?.user?.id),
+      });
+      if (response.data?.success) {
+        setProducts(response.data.data || []);
+      } else {
+        toast.error(response.data?.message || "❌ Failed to load inventory");
+      }
+    } catch (err) {
+      console.error("Error fetching inventory:", err);
+      toast.error("❌ Server error while fetching inventory");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetchRetailerProducts();
+    }
+  }, [session?.user?.id]);
 
   return (
-    <div className="space-y-2">
-      <h2 className="text-2xl font-bold">Your Inventory</h2>
+    <div className="py-5 space-y-5">
+      <h2 className="text-2xl font-bold">Retailer Inventory</h2>
       <AppBreadcrumb />
-      <div className="py-5">
+
+      {loading ? (
+        <p className="text-gray-500">Loading inventory...</p>
+      ) : (
         <Table>
-          <TableCaption>A list of your Products in Inventory.</TableCaption>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-[100px]">#ID</TableHead>
-              <TableHead>Name</TableHead>
+              <TableHead>ID</TableHead>
+              <TableHead>Product Name</TableHead>
+              <TableHead>Formula</TableHead>
+              <TableHead>Organization</TableHead>
+              <TableHead>Stock</TableHead>
+              <TableHead>Wholesale Price</TableHead>
               <TableHead>Price</TableHead>
-              <TableHead className="text-right">Organization</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {medicines.map((item, index) => (
-              <TableRow key={index}>
-                <TableCell className="font-medium">{item.id}</TableCell>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.price}</TableCell>
-                <TableCell className="text-right">{item.company}</TableCell>
+            {products.length > 0 ? (
+              products.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>{product.id}</TableCell>
+                  <TableCell>{product.product?.name}</TableCell>
+                  <TableCell>{product.product?.formula}</TableCell>
+                  <TableCell>{product.product?.organization?.name}</TableCell>
+                  <TableCell>{product.stock}</TableCell>
+                  <TableCell>{product.wholesaleprice}</TableCell>
+                  <TableCell>{product.price}</TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  No products found.
+                </TableCell>
               </TableRow>
-            ))}
+            )}
           </TableBody>
         </Table>
-      </div>
+      )}
     </div>
   );
 }
-
-export default page;

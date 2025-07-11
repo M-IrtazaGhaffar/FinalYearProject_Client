@@ -1,8 +1,12 @@
+import { Toaster } from '@/components/ui/sonner'
 import React from 'react'
 
 function layout({ children }) {
   return (
-    <main>{children}</main>
+    <main>
+      <Toaster />
+      {children}
+      </main>
   )
 }
 
