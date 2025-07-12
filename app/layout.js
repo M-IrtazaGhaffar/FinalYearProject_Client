@@ -1,6 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 import { Raleway } from "next/font/google";
+import { Toaster } from "@/components/ui/sonner";
 
 const raleway = Raleway({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
@@ -16,6 +17,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className={`${raleway.className}`}>
+        <Toaster />
         <SessionProvider>
         {children}
         </SessionProvider>
