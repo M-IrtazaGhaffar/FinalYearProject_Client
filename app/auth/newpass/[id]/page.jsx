@@ -1,22 +1,21 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import React, { useState } from "react";
+import React, { useActionState } from "react";
 import { toast } from "sonner";
 import Logo1 from "@/assets/1.png";
 import Image from "next/image";
 
 function NewPasswordPage() {
   const params = useParams();
-  const token = params?.token;
+  const router = useRouter();
+  const token = params?.id;
 
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const handleReset = async (e) => {
-    e.preventDefault();
+  const handleReset = async (prevState, formData) => {
+    const password = formData.get("password");
+    const confirmPassword = formData.get("confirmPassword");
 
     if (password !== confirmPassword) {
       toast.error("Passwords do not match.");
@@ -36,6 +35,7 @@ function NewPasswordPage() {
         toast.error(data.message || "Reset failed");
       } else {
         toast.success(data.message || "Password reset successfully!");
+        router.push("/");
       }
     } catch (err) {
       console.error(err);
@@ -43,40 +43,46 @@ function NewPasswordPage() {
     }
   };
 
+  const [state, formAction, isPending] = useActionState(handleReset, undefined);
+
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
       <form
-        onSubmit={handleReset}
-        className="bg-white p-6 rounded-md shadow-lg w-full max-w-md"
+        action={formAction}
+        className="bg-white p-6 sm:p-8 rounded-md shadow-lg w-full max-w-md"
       >
-        <div className="flex justify-center w-full">
+        <div className="flex justify-center mb-4">
           <Image
             src={Logo1}
             alt="Logo"
-            width={250}
-            height={250}
-            className="p-2 w-[20%]"
+            width={120}
+            height={120}
+            className="object-contain"
           />
         </div>
-        <h1 className="text-2xl font-bold mb-4 text-center">Set New Password</h1>
-        <Input
-          type="password"
-          placeholder="New Password"
-          className="mb-4"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-        <Input
-          type="password"
-          placeholder="Confirm Password"
-          className="mb-4"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-        <Button type="submit" className="w-full">
-          Reset Password
+
+        <h1 className="text-2xl font-bold mb-6 text-center">Set New Password</h1>
+
+        <div className="mb-4">
+          <Input
+            type="password"
+            name="password"
+            placeholder="New Password"
+            required
+          />
+        </div>
+
+        <div className="mb-6">
+          <Input
+            type="password"
+            name="confirmPassword"
+            placeholder="Confirm Password"
+            required
+          />
+        </div>
+
+        <Button type="submit" className="w-full" disabled={isPending}>
+          {isPending ? "Resetting..." : "Reset Password"}
         </Button>
       </form>
     </main>

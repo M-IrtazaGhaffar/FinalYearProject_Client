@@ -1,68 +1,78 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import React from "react";
 import Logo1 from "@/assets/1.png";
 import Image from "next/image";
-import axios from "axios";
 import { signIn } from "next-auth/react";
+import { toast } from "sonner";
 
 function Page() {
-  const [Data, setData] = useState({
-    email: "",
-    password: "",
-  });
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const handleLogin = async (prevState, formData) => {
+    const email = formData.get("email");
+    const password = formData.get("password");
 
     try {
-      const res = await axios.post(
-        "https://advancedpos.duckdns.org/api/organization/login",
-        Data
-      );
+      const res = await fetch("https://advancedpos.duckdns.org/api/organization/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Invalid email or password");
+        return;
+      }
+
+      toast.success(data.message)
 
       await signIn("credentials", {
         redirect: true,
         redirectTo: "/dashboard/organization",
-        id: res?.data?.data?.id,
-        email: res?.data?.data?.email,
-        name: res?.data?.data?.username,
-        owner: res?.data?.data?.owner,
-        type: res?.data?.data?.type,
-        token: res?.data?.data?.token,
+        id: data?.data?.id,
+        email: data?.data?.email,
+        name: data?.data?.username,
+        owner: data?.data?.owner,
+        type: data?.data?.type,
+        token: data?.data?.token,
       });
     } catch (error) {
-      alert("Invalid email or password");
-      console.log(error);
-    } finally {
-      setLoading(false);
+      console.error(error);
+      toast.error("Network error, please try again.");
     }
   };
 
+  const [state, formAction, isPending] = useActionState(handleLogin, undefined);
+
   return (
-    <main className="p-5 lg:p-10 flex justify-center items-center min-h-[100vh] min-w-[100vw]">
+    <main className="p-4 sm:p-6 lg:p-10 flex justify-center items-center min-h-screen bg-gray-50">
       <form
-        onSubmit={handleSubmit}
-        className="border-[1px] rounded shadow-2xl p-10 w-[50vw] flex flex-col gap-3 justify-center items-center"
+        action={formAction}
+        className="border rounded shadow-2xl p-6 sm:p-8 w-full max-w-md flex flex-col gap-4 bg-white"
       >
-        <Image
-          src={Logo1}
-          alt="image"
-          width={250}
-          height={250}
-          className="p-2 w-[20%]"
-        />
-        <h2 className="text-2xl text-center font-bold">
+        <div className="flex justify-center mb-4">
+          <Image
+            src={Logo1}
+            alt="Logo"
+            width={120}
+            height={120}
+            className="object-contain"
+          />
+        </div>
+
+        <h2 className="text-xl sm:text-2xl text-center font-bold mb-2">
           Authentication for Organization
         </h2>
+
         <div className="w-full">
-          <label htmlFor="email" className="text-xs">
+          <label htmlFor="email" className="text-sm block mb-1">
             Your Email
           </label>
           <Input
@@ -71,12 +81,12 @@ function Page() {
             type="email"
             placeholder="Email"
             required
-            onChange={(e) => setData({ ...Data, email: e.target.value })}
-            disabled={loading}
+            disabled={isPending}
           />
         </div>
+
         <div className="w-full">
-          <label htmlFor="password" className="text-xs">
+          <label htmlFor="password" className="text-sm block mb-1">
             Your Password
           </label>
           <Input
@@ -85,24 +95,25 @@ function Page() {
             type="password"
             placeholder="Password"
             required
-            onChange={(e) => setData({ ...Data, password: e.target.value })}
-            disabled={loading}
+            disabled={isPending}
           />
         </div>
+
         <Link
           href="/auth/forgotpassword"
-          className="underline text-xs self-start"
+          className="underline text-xs self-start text-blue-600 hover:text-blue-800"
         >
           Forgot Your Password?
         </Link>
+
         <Button
           type="submit"
-          disabled={loading}
-          className="w-full hover:bg-white hover:text-black shadow-2xl border-[1px] flex items-center justify-center gap-2"
+          disabled={isPending}
+          className="w-full hover:bg-white hover:text-black shadow-md border flex items-center justify-center gap-2"
         >
-          {loading ? (
+          {isPending ? (
             <>
-              <span className="loader mr-2 animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" />
+              <span className="loader animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" />
               Authenticating...
             </>
           ) : (

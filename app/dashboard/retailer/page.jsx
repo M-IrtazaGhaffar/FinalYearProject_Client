@@ -1,11 +1,11 @@
 import { auth } from "@/auth";
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
 import AppMapBox from "@/components/app-mapbox";
-import { organizationApi } from "@/app/axiosInstance";
 import axios from "axios";
 
 async function Page() {
   const session = await auth();
+  
   let organizationData = null;
 
   try {
@@ -16,6 +16,9 @@ async function Page() {
         token: session?.user?.token,
       }
     );
+
+    console.log(response);
+    
     organizationData = response.data.data;
     console.log(Object.keys(organizationData));
   } catch (error) {

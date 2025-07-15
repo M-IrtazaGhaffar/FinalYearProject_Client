@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -13,13 +13,12 @@ import {
 import Image from "next/image";
 import Logo1 from "@/assets/1.png";
 import axios from "axios";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 function RegisterPage() {
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
   const [locating, setLocating] = useState(false);
-  const router = useRouter();
-
   const [data, setData] = useState({
     name: "",
     owner: "",
@@ -71,7 +70,7 @@ function RegisterPage() {
   const fetchLocation = () => {
     setLocating(true);
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      toast.error("Geolocation is not supported by your browser.");
       setLocating(false);
       return;
     }
@@ -86,22 +85,20 @@ function RegisterPage() {
         setLocating(false);
       },
       (err) => {
-        alert("Failed to fetch location.");
+        toast.error("Failed to fetch location.");
         console.error("Geolocation error:", err);
         setLocating(false);
       }
     );
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (
       passwordLevel === "Weak" ||
       passwordLevel === "Normal" ||
       passwordLevel === "Strong"
     ) {
-      alert("Password is too weak. Please make it stronger.");
+      toast.warning("Password is too weak. Please make it stronger.");
       return;
     }
 
@@ -113,38 +110,41 @@ function RegisterPage() {
     }
 
     if (!data.type) {
-      alert("Please select a user type.");
+      toast.error("Please select a user type.");
       return;
     }
 
     const endpoint = `https://advancedpos.duckdns.org/api/${data.type}/create`;
 
-    setLoading(true);
     try {
-      await axios.post(endpoint, data);
-      router.push(`/auth/${data.type}`);
+      const res = await axios.post(endpoint, data);
+      toast.success(res?.data?.message);
+      router.push('/')
     } catch (err) {
-      alert("Registration failed.");
+      toast.error("Registration failed.");
       console.error(err);
-    } finally {
-      setLoading(false);
     }
   };
 
+  const [_, formAction, isPending] = useActionState(handleSubmit, undefined);
+
   return (
-    <main className="p-5 lg:p-10 flex justify-center items-center">
+    <main className="p-4 sm:p-6 lg:p-10 flex justify-center items-center min-h-screen bg-gray-50">
       <form
-        onSubmit={handleSubmit}
-        className="border-[1px] rounded shadow-2xl p-10 w-[50vw] flex flex-col gap-3 justify-center items-center"
+        action={formAction}
+        className="w-full max-w-2xl border rounded shadow-2xl p-6 sm:p-8 flex flex-col gap-4 bg-white"
       >
-        <Image
-          src={Logo1}
-          alt="Logo"
-          width={250}
-          height={250}
-          className="p-2 w-[20%]"
-        />
-        <h2 className="text-2xl font-bold text-center">
+        <div className="flex justify-center">
+          <Image
+            src={Logo1}
+            alt="Logo"
+            width={120}
+            height={120}
+            className="object-contain"
+          />
+        </div>
+
+        <h2 className="text-xl sm:text-2xl font-bold text-center">
           Register Organization / Retailer
         </h2>
 
@@ -164,7 +164,6 @@ function RegisterPage() {
           required
           onChange={(e) => setData({ ...data, email: e.target.value })}
         />
-
         <Input
           placeholder="Password"
           type="password"
@@ -174,8 +173,6 @@ function RegisterPage() {
             evaluatePassword(e.target.value);
           }}
         />
-
-        {/* Password strength bar */}
         <div className="w-full">
           <div className="w-full h-2 bg-gray-200 rounded overflow-hidden mt-1">
             <div className={`${passwordColor} ${passwordProgress} h-full`} />
@@ -184,7 +181,6 @@ function RegisterPage() {
             Password Strength: <strong>{passwordLevel}</strong>
           </p>
         </div>
-
         <Input
           placeholder="Confirm Password"
           type="password"
@@ -228,20 +224,28 @@ function RegisterPage() {
           onChange={(e) => setData({ ...data, address: e.target.value })}
         />
 
-        <div className="flex gap-2 w-full">
-          <Input value={data.latitude} readOnly placeholder="Latitude" />
-          <Input value={data.longitude} readOnly placeholder="Longitude" />
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
+          <Input
+            value={data.latitude}
+            placeholder="Latitude"
+            onChange={(e) => setData({ ...data, latitude: e.target.value })}
+          />
+          <Input
+            value={data.longitude}
+            placeholder="Longitude"
+            onChange={(e) => setData({ ...data, longitude: e.target.value })}
+          />
         </div>
 
         <Button
           type="button"
           onClick={fetchLocation}
           disabled={locating}
-          className="w-full border-[1px] shadow hover:bg-white hover:text-black"
+          className="w-full border shadow hover:bg-white hover:text-black"
         >
           {locating ? (
             <>
-              <span className="loader mr-2 animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" />
+              <span className="loader animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" />
               Fetching Location...
             </>
           ) : (
@@ -251,12 +255,12 @@ function RegisterPage() {
 
         <Button
           type="submit"
-          disabled={loading}
-          className="w-full border-[1px] shadow hover:bg-white hover:text-black flex items-center justify-center gap-2"
+          disabled={isPending}
+          className="w-full border shadow hover:bg-white hover:text-black flex items-center justify-center gap-2"
         >
-          {loading ? (
+          {isPending ? (
             <>
-              <span className="loader mr-2 animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" />
+              <span className="loader animate-spin border-2 border-white border-t-transparent rounded-full w-4 h-4" />
               Registering...
             </>
           ) : (

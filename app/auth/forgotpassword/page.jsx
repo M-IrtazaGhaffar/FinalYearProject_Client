@@ -41,38 +41,41 @@ function Page() {
   const [data, formAction, isPending] = useActionState(handleForm, undefined);
 
   return (
-    <main className="p-5 lg:p-10 flex justify-center items-center min-h-[100vh] min-w-[100vw]">
+    <main className="p-4 sm:p-6 lg:p-10 flex justify-center items-center min-h-screen">
       <form
         action={formAction}
-        className="border-[1px] rounded shadow-2xl p-10 w-[50vw] flex flex-col gap-3 justify-center items-center"
+        className="w-full max-w-md sm:w-3/4 md:w-2/3 lg:w-1/2 xl:w-[30%] border rounded shadow-2xl p-6 sm:p-8 flex flex-col gap-4 bg-white"
       >
-        <Image
-          src={Logo1}
-          alt="Logo"
-          width={250}
-          height={250}
-          className="p-2 w-[20%]"
-        />
-        <h2 className="text-2xl text-center font-bold">Forget Your Password</h2>
+        <div className="flex justify-center">
+          <Image
+            src={Logo1}
+            alt="Logo"
+            width={120}
+            height={120}
+            className="w-24 sm:w-28 object-contain"
+          />
+        </div>
+
+        <h2 className="text-xl sm:text-2xl text-center font-bold">Forget Your Password</h2>
+
         <div className="w-full">
-          <label htmlFor="email" className="text-xs">
+          <label htmlFor="email" className="text-sm block mb-1">
             Your Email
           </label>
           <Input
             type="email"
             id="email"
             name="email"
-            placeholder="Email"
+            placeholder="Enter your email"
             required
           />
         </div>
+
         <Button
-          className="w-full hover:bg-white hover:text-black shadow-2xl border-[1px]"
+          className="w-full hover:bg-white hover:text-black shadow-md border"
           disabled={isPending}
         >
-          {
-            isPending ? 'Sending Email' : 'Forget Password'
-          }
+          {isPending ? "Sending Email..." : "Forget Password"}
         </Button>
       </form>
     </main>
