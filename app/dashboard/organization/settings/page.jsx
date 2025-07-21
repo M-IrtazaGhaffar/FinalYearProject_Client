@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { organizationApi } from "@/app/axiosInstance";
 import axios from "axios";
 import { getSession } from "next-auth/react"; // Add this import
+import { toast } from "sonner";
 
 function SettingsPage() {
   const [loading, setLoading] = useState(false);
@@ -37,8 +38,7 @@ function SettingsPage() {
       );
       setSettings(res.data.data || {});
     } catch (error) {
-      alert("Failed to fetch settings");
-      console.log(error);
+      toast.error("Failed to fetch settings");
     } finally {
       setLoading(false);
     }
@@ -64,10 +64,10 @@ function SettingsPage() {
         longitude: settings.longitude,
         latitude: settings.latitude,
       });
-      alert("Settings updated successfully!");
+      toast.success("Settings updated successfully!");
       fetchSettings();
     } catch (error) {
-      alert("Failed to update settings");
+      toast.error("Failed to update settings");
     } finally {
       setSaving(false);
     }

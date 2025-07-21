@@ -52,9 +52,6 @@ export default function OrdersPage() {
         }
       );
 
-      console.log(response.data.data);
-      
-
       if (response.data?.success) {
         setSingleOrders(response.data.data || []);
         toast.success("Order loaded");

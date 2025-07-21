@@ -22,11 +22,11 @@ export default function InventoryPage() {
       if (response.data?.success) {
         setProducts(response.data.data || []);
       } else {
-        toast.error(response.data?.message || "❌ Failed to load inventory");
+        toast.error(response.data?.message || "Failed to load inventory");
       }
     } catch (err) {
       console.error("Error fetching inventory:", err);
-      toast.error("❌ Server error while fetching inventory");
+      toast.error("Server error while fetching inventory");
     } finally {
       setLoading(false);
     }

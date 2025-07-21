@@ -49,7 +49,7 @@ export default function CreateProductPage() {
     try {
       const response = await organizationApi.post("/product/create", formData);
       if (response.data?.success) {
-        alert("Product Created Successfully!");
+        toast.success("Product Created Successfully!");
         setFormData({
           name: "",
           description: "",
@@ -63,13 +63,13 @@ export default function CreateProductPage() {
       } else {
         const msg = response.data?.message || "Failed to create product.";
         setError(msg);
-        alert(msg);
+        toast.error(msg);
       }
     } catch (err) {
       console.error("Product creation error:", err);
       const msg = err?.response?.data?.message || "Server error.";
       setError(msg);
-      alert(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import { organizationApi } from "@/app/axiosInstance";
 import axios from "axios";
+import { toast } from "sonner";
 
 function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -52,7 +53,7 @@ function ProductsPage() {
       );
       setProducts(res.data.data || []);
     } catch (error) {
-      alert("Failed to fetch products");
+      toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
@@ -90,9 +91,9 @@ function ProductsPage() {
       );
       setOpen(false);
       setEditProduct(null);
-      alert("Product updated successfully!");
+      toast.success("Product updated successfully!");
     } catch (error) {
-      alert("Failed to update product");
+      toast.error("Failed to update product");
     }
   };
 

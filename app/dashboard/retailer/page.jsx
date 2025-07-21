@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import { AppBreadcrumb } from "@/components/app-breadcrumb";
 import AppMapBox from "@/components/app-mapbox";
+import { AppRetailerChart } from "@/components/app-retailer-chart";
 import axios from "axios";
 
 async function Page() {
   const session = await auth();
-  
+
   let organizationData = null;
 
   try {
@@ -17,10 +18,8 @@ async function Page() {
       }
     );
 
-    console.log(response);
-    
     organizationData = response.data.data;
-    console.log(Object.keys(organizationData));
+
   } catch (error) {
     console.error("Error fetching organization data:", error);
     return (
@@ -42,6 +41,9 @@ async function Page() {
     <div className="space-y-2">
       <h2 className="text-2xl font-bold">Dashboard Organization</h2>
       <AppBreadcrumb />
+      <div className="py-10 space-y-3">
+      <AppRetailerChart />
+      </div>
       <div className="py-10 space-y-3">
         <div className="flex items-center justify-between gap-10">
           <span className="text-sm font-bold">ID</span>
@@ -88,7 +90,10 @@ async function Page() {
           <span>{organizationData.country}</span>
         </div>
         <div className="flex items-center justify-between gap-10">
-          <AppMapBox latitude={organizationData.latitude} longitude={organizationData.longitude} />
+          <AppMapBox
+            latitude={organizationData.latitude}
+            longitude={organizationData.longitude}
+          />
         </div>
       </div>
     </div>

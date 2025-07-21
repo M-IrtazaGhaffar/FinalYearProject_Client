@@ -23,6 +23,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { organizationApi } from "@/app/axiosInstance";
+import { toast } from "sonner";
 
 function BlogsPage() {
   const [blogs, setBlogs] = useState([]);
@@ -50,7 +51,7 @@ function BlogsPage() {
       );
       setBlogs(res.data.data || []);
     } catch (error) {
-      alert("Failed to fetch blogs");
+      toast.error("Failed to fetch blogs");
     } finally {
       setLoading(false);
     }
@@ -86,9 +87,9 @@ function BlogsPage() {
       );
       setOpen(false);
       setEditBlog(null);
-      alert("Blog updated successfully!");
+      toast.error("Blog updated successfully!");
     } catch (error) {
-      alert("Failed to update blog");
+      toast.error("Failed to update blog");
     }
   };
 

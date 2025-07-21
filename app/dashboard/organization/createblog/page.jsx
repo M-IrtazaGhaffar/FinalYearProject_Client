@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { organizationApi } from "@/app/axiosInstance";
+import { toast } from "sonner";
 
 export default function CreateBlogPage() {
   const { data: session } = useSession();
@@ -35,7 +36,7 @@ export default function CreateBlogPage() {
         organization_id: session?.user?.id || "",
       });
       if (res.data?.success) {
-        alert("Blog created successfully!");
+        toast("Blog created successfully!");
         setFormData({
           title: "",
           description: "",
@@ -45,13 +46,13 @@ export default function CreateBlogPage() {
       } else {
         const msg = res.data?.message || "Failed to create blog.";
         setError(msg);
-        alert(msg);
+        toast.error(msg);
       }
     } catch (err) {
       console.error("Blog creation error:", err);
       const msg = err?.response?.data?.message || "Server error.";
       setError(msg);
-      alert(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
